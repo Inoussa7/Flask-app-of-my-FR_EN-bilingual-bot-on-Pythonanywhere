@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="/static/styles/index.css">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="./home_files/bootstrap.min.css" rel="stylesheet">
+    <title>French and English Learning Portal</title>
+</head>
+<body class="bg-light">
+    <div class="container py-5">
+        <div class="row">
+            <div class="col-12 text-center">
+                <h1 class="display-4">English and French Learning Portal</h1>
+                <p>Learn English and French using text and speech.</p>
+                <div class="mt-5">
+                    <a href="{{ url_for('text') }}" class="btn btn-primary btn-lg">Enter Text</a>
+                        <a href="{{ url_for('speech') }}" class="btn btn-secondary btn-lg">Speak</a>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="{{ url_for('static', filename='js/jquery-3.6.0.min.js') }}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/speechkitt/0.3.0/speechkitt.min.js"></script>
+    <script>
+        $(document).ready(function(){
+            var recognition = speechKITT.getRecognition();
+            var language = $("#language option:selected").val();
+            recognition.lang = language === 'en' ? 'en-US' : 'fr-FR';
+            $('#speech-input').click(function() {
+                speechKITT.setStylesheet('//cdnjs.cloudflare.com/ajax/libs/SpeechKITT/0.3.0/themes/flat.css');
+                speechKITT.setLanguage(language === 'en' ? 'en-US' : 'fr-FR');
+                speechKITT.startRecognition({
+                    onEnd: function() {
+                        speechKITT.setStylesheet('//cdnjs.cloudflare.com/ajax/libs/SpeechKITT/0.3.0/themes/skittlish.css');
+                    },
+                    onError: function() {
+                        alert("Sorry, we couldn't recognize your speech.");
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
+
+
