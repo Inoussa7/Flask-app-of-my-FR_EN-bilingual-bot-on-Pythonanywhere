@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Chat</title>
+  </head>
+  <body>
+    <h1>Learn French and English with Speech Input</h1>
+<div>
+  <label for="language-select">Language:</label>
+  <select id="language-select">
+    <option value="en-US">English</option>
+    <option value="fr-FR">French</option>
+  </select>
+    <div>
+      <button id="start-recording-btn">Start Recording</button>
+      <button id="stop-recording-btn" disabled>Stop Recording</button>
+      <div id="chat-log"></div>
+    </div>
+    <script>
+    console.log("this is a test...");
+      var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+var recognition = new SpeechRecognition();
+var chatLog = document.getElementById('chat-log');
+var startRecordingBtn = document.getElementById('start-recording-btn');
+var stopRecordingBtn = document.getElementById('stop-recording-btn');
+var languageSelect = document.getElementById('language-select');
+var recognizing = false;
+
+recognition.lang = 'en-US';
+recognition.continuous = true;
+
+recognition.onstart = function() {
+    console.log("ready_to_recognize...");
+  recognizing = true;
+  startRecordingBtn.disabled = true;
+  stopRecordingBtn.disabled = false;
+};
+
+recognition.onend = function() {
+    console.log("recording stopped...");
+  recognizing = false;
+  startRecordingBtn.disabled = false;
+  stopRecordingBtn.disabled = true;
+};
+
+recognition.onresult = async function(event) {
+    console.log("ready to process...");
+  var input = await event.results[event.results.length - 1][0].transcript;
+  console.log("processed", input);
+  chatLog.innerHTML += '<p>User: ' + input + '</p>';
+  generateResponse(input);
+  //sendInput(input);
+};
+
+startRecordingBtn.addEventListener('click', function() {
+  recognition.lang = languageSelect.value;
+  recognition.start();
+});
+
+stopRecordingBtn.addEventListener('click', function() {
+  recognition.stop();
+});
+
+function sendInput(input) {
+  fetch('/chat', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({input: input, lang: languageSelect.value})
+  })
+  .then(function(response) {
+    return response.json();
+  })
+  .then(function(data) {
+    var output = data.output;
+    chatLog.innerHTML += '<p>AI: ' + output + '</p>';
+    chatLog.scrollTop = chatLog.scrollHeight;
+    sayResponse(output);
+  });
+}
+
+ function generateResponse(input) {
+     console.log("generating response...");
+            $.ajax({
+                url: "/chat",
+                type: "POST",
+                data: {input_text: input, language: "en"},
+                dataType: "json",
+                success: function(data) {
+                    sayResponse(data.response);
+                    console.log("response returned", data.response);
+                    //$("#response_text").val(data.response);
+                    //$("#response_text").trigger('input');
+                }
+            });
+        }
+
+
+
+
+function sayResponse(response) {
+  if (response && response.trim() !== '') { // checking for valid and non-empty response
+    var msg = new SpeechSynthesisUtterance(response);
+    console.log("Creating SpeechSynthesisUtterance object:", msg);
+    window.speechSynthesis.speak(msg);
+    console.log("Calling speak method on SpeechSynthesis object");
+  }
+}
+    </script>
+  </body>
+</html>
