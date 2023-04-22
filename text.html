@@ -1,0 +1,62 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Learn French and English with Text Input</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        function adjustQueryHeight() {
+            this.style.height = 'auto';
+            this.style.height = this.scrollHeight + 'px';
+        }
+        function adjustResponseHeight() {
+            this.style.height = 'auto';
+            this.style.height = this.scrollHeight + 'px';
+        }
+        function generateResponse() {
+            var input = $("#input_text").val();
+            var lang = $("#language").val();
+            $.ajax({
+                url: "/chat",
+                type: "POST",
+                data: {input_text: input, language: lang},
+                dataType: "json",
+                success: function(data) {
+                    $("#response_text").val(data.response);
+                    $("#response_text").trigger('input');
+                }
+            });
+        }
+        function readResponse() {
+            var response = $("#response_text").val();
+            var lang = $("#language").val();
+            var utterance = new SpeechSynthesisUtterance(response);
+            utterance.lang = lang;
+            speechSynthesis.speak(utterance);
+        }
+    </script>
+    <style>
+        #input_text, #response_text {
+            border: 1px solid black;
+            padding: 5px;
+            margin: 5px 0;
+        }
+    </style>
+  </head>
+  <body>
+    <h1>Learn French and English with Text Input</h1>
+    <form>
+      <label for="input_text">Enter your query:</label><br>
+      <textarea id="input_text" name="input_text" oninput="adjustQueryHeight.call(this)"></textarea><br>
+      <label for="response_text">Response:</label><br>
+      <textarea id="response_text" name="response_text" readonly oninput="adjustResponseHeight.call(this)"></textarea><br>
+      <label for="language">Select a language:</label>
+      <select id="language" name="language">
+        <option value="en">English</option>
+        <option value="fr">French</option>
+      </select>
+      <br><br>
+      <button type="button" onclick="generateResponse()">Submit</button>
+      <button type="button" onclick="readResponse()">Read aloud</button>
+    </form>
+  </body>
+</html>
