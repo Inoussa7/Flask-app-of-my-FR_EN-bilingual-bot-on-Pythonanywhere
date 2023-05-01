@@ -83,24 +83,19 @@ function sendInput(input) {
 }
 
  function generateResponse(input) {
-     console.log("generating response...");
-            $.ajax({
-                url: "/chat",
-                type: "POST",
-                data: {input_text: input, language: "en"},
-                dataType: "json",
-                success: function(data) {
-                    sayResponse(data.response);
-                    console.log("response returned", data.response);
-                    //$("#response_text").val(data.response);
-                    //$("#response_text").trigger('input');
-                }
-            });
+          console.log("generating response...");
+          $.ajax({
+            url: "/chat",
+            type: "POST",
+            data: {input_text: input, language: "en"},
+            dataType: "json",
+            success: function(data) {
+              console.log("response returned", data.response);
+              sayResponse(data.response);
+            }
+          });
         }
-
-
-
-
+        
 function sayResponse(response) {
   if (response && response.trim() !== '') { // checking for valid and non-empty response
     var msg = new SpeechSynthesisUtterance(response);
